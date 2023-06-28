@@ -38,7 +38,7 @@ public class AntiqueAtlasMod {
 	public static final String ID = "antiqueatlas";
 	public static final String NAME = "Antique Atlas";
 	public static final String CHANNEL = ID;
-	public static final String VERSION = "@VERSION@";
+	public static final String VERSION = "GRADLETOKEN_VERSION";
 	
 	@Instance(ID)
 	public static AntiqueAtlasMod instance;

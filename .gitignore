@@ -1,37 +1,33 @@
-# Build dirs:
-bin
-release
-dist
-build
-run
-
-# Gradle
 .gradle
-
-## IDE
-
-# IntelliJ IDEA
-out
+.settings
+/.idea/
+/.vscode/
+/run/
+/build/
+/eclipse/
+.classpath
+.project
+/bin/
+/config/
+/crash-reports/
+/logs/
+options.txt
+/saves/
+usernamecache.json
+banned-ips.json
+banned-players.json
+eula.txt
+ops.json
+server.properties
+servers.dat
+usercache.json
+whitelist.json
+/out/
 *.iml
 *.ipr
 *.iws
-.idea
-
-# Eclipse
-*.launch
-.settings
-.metadata
-.classpath
-.project
-eclipse
-
-# NetBeans
-nbproject
-
-# ViM
-.*.sw[a-p]
-
-# Garbage
-Thumbs.db
-*.log
-*.bak
+src/main/resources/mixins.*([!.]).json
+*.bat
+*.DS_Store
+!gradlew.bat
+.factorypath
