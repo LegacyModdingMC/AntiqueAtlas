@@ -6,7 +6,6 @@ import hunternif.mc.atlas.network.client.TileGroupsPacket;
 import hunternif.mc.atlas.util.Log;
 import hunternif.mc.atlas.util.Rect;
 import hunternif.mc.atlas.util.ShortVec2;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
@@ -28,7 +27,7 @@ public class DimensionData implements ITileStorage {
 	/**
 	 * a map of chunks the player has seen. This map is thread-safe. CAREFUL!
 	 * Don't modify chunk coordinates that are already put in the map!
-	 * 
+	 *
 	 * Key is a ShortVec2 representing the gilegroup's position in units of TileGroup.CHUNK_STEP
 	 */
 	private final Map<ShortVec2, TileGroup> tileGroups = new ConcurrentHashMap<ShortVec2, TileGroup>(2, 0.75f, 2);
@@ -120,7 +119,7 @@ public class DimensionData implements ITileStorage {
 		ShortVec2 key = getKey().set(t.scope.minX/TileGroup.CHUNK_STEP, t.scope.minY/TileGroup.CHUNK_STEP);
 		tileGroups.put(key, t);
 	}
-	
+
 	@Override
 	public Tile removeTile(int x, int y) {
 		//TODO
@@ -170,7 +169,7 @@ public class DimensionData implements ITileStorage {
 		}
 		return tileGroupList;
 	}
-	
+
 	public void readFromNBT(NBTTagList me){
 		if (me == null){
 			return;
@@ -183,9 +182,8 @@ public class DimensionData implements ITileStorage {
 			tileGroups.put(key, tg);
 		}
 	}
-	
+
 	public void syncOnPlayer(int atlasID, EntityPlayer player){
-		Log.info("Sending dimension #%d", dimension);
 		ArrayList<TileGroup> tgs = new ArrayList<TileGroup>(TileGroupsPacket.TILE_GROUPS_PER_PACKET);
 		int count = 0;
 		int total = 0;
@@ -203,9 +201,8 @@ public class DimensionData implements ITileStorage {
 			TileGroupsPacket p = new TileGroupsPacket(tgs, atlasID, dimension);
 			PacketDispatcher.sendTo(p, (EntityPlayerMP) player);
 		}
-		Log.info("Sent dimension #%d (%d tiles)", dimension, total);
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if (!(obj instanceof DimensionData)) return false;

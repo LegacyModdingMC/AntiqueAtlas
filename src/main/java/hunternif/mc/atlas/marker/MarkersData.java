@@ -41,20 +41,20 @@ public class MarkersData extends WorldSavedData {
 	private static final String TAG_MARKER_X = "x";
 	private static final String TAG_MARKER_Y = "y";
 	private static final String TAG_MARKER_VISIBLE_AHEAD = "visAh";
-	
+
 	/** Markers are stored in lists within square areas this many MC chunks
 	 * across. */
 	public static final int CHUNK_STEP = 8;
-	
+
 	/** Set of players this data has been sent to, only once after they connect. */
 	private final Set<EntityPlayer> playersSentTo = new HashSet<EntityPlayer>();
-	
+
 	private final AtomicInteger largestID = new AtomicInteger(0);
-	
+
 	protected int getNewID() {
 		return largestID.incrementAndGet();
 	}
-	
+
 	private final Map<Integer /*marker ID*/, Marker> idMap = new ConcurrentHashMap<Integer, Marker>(2, 0.75f, 2);
 	/**
 	 * Maps a list of markers in a square to the square's coordinates, then to
@@ -68,7 +68,7 @@ public class MarkersData extends WorldSavedData {
 	 */
 	private final Map<Integer /*dimension ID*/, DimensionMarkersData> dimensionMap =
 			new ConcurrentHashMap<Integer, DimensionMarkersData>(2, 0.75f, 2);
-	
+
 	public MarkersData(String key) {
 		super(key);
 	}
@@ -123,7 +123,6 @@ public class MarkersData extends WorldSavedData {
 
 	@Override
 	public void writeToNBT(NBTTagCompound compound) {
-		Log.info("Saving local markers data to NBT");
 		compound.setInteger(TAG_VERSION, VERSION);
 		NBTTagList dimensionMapList = new NBTTagList();
 		for (Integer dimension : dimensionMap.keySet()) {
@@ -132,7 +131,6 @@ public class MarkersData extends WorldSavedData {
 			DimensionMarkersData data = getMarkersDataInDimension(dimension);
 			NBTTagList tagList = new NBTTagList();
 			for (Marker marker : data.getAllMarkers()) {
-				Log.debug("Saving marker %s", marker.toString());
 				NBTTagCompound markerTag = new NBTTagCompound();
 				markerTag.setInteger(TAG_MARKER_ID, marker.getId());
 				markerTag.setString(TAG_MARKER_TYPE, marker.getType());
@@ -147,16 +145,16 @@ public class MarkersData extends WorldSavedData {
 		}
 		compound.setTag(TAG_DIMENSION_MAP_LIST, dimensionMapList);
 	}
-	
+
 	public Set<Integer> getVisitedDimensions() {
 		return dimensionMap.keySet();
 	}
-	
+
 	/** This method is rather inefficient, use it sparingly. */
 	public Collection<Marker> getMarkersInDimension(int dimension) {
 		return getMarkersDataInDimension(dimension).getAllMarkers();
 	}
-	
+
 	/** Creates a new instance of {@link DimensionMarkersData}, if necessary. */
 	public DimensionMarkersData getMarkersDataInDimension(int dimension) {
 		DimensionMarkersData data = dimensionMap.get(dimension);
@@ -166,13 +164,13 @@ public class MarkersData extends WorldSavedData {
 		}
 		return data;
 	}
-	
+
 	/** The "chunk" here is {@link MarkersData#CHUNK_STEP} times larger than the
 	 * Minecraft 16x16 chunk! May return null. */
 	public List<Marker> getMarkersAtChunk(int dimension, int x, int z) {
 		return getMarkersDataInDimension(dimension).getMarkersAtChunk(x, z);
 	}
-	
+
 	public Marker getMarkerByID(int id) {
 		return idMap.get(id);
 	}
@@ -185,19 +183,18 @@ public class MarkersData extends WorldSavedData {
 		}
 		return marker;
 	}
-	
+
 	/** For internal use. Use the {@link MarkerAPI} to put markers! This method
 	 * creates a new marker from the given data, saves and returns it.
 	 * Server side only! */
 	public Marker createAndSaveMarker(String type, String label, int dimension, int x, int z, boolean visibleAhead) {
 		Marker marker = new Marker(getNewID(), type, label, dimension, x, z, visibleAhead);
-		Log.info("Created new marker %s", marker.toString());
 		idMap.put(marker.getId(), marker);
 		getMarkersDataInDimension(marker.getDimension()).insertMarker(marker);
 		markDirty();
 		return marker;
 	}
-	
+
 	/**
 	 * For internal use, when markers are loaded from NBT or sent from the
 	 * server. IF a marker's id is conflicting, the marker is not loaded!
@@ -210,11 +207,11 @@ public class MarkersData extends WorldSavedData {
 		}
 		return marker;
 	}
-	
+
 	public boolean isSyncedOnPlayer(EntityPlayer player) {
 		return playersSentTo.contains(player);
 	}
-	
+
 	/** Send all data to the player in several packets. Called once during the
 	 * first run of ItemAtals.onUpdate(). */
 	public void syncOnPlayer(int atlasID, EntityPlayer player) {
@@ -226,17 +223,16 @@ public class MarkersData extends WorldSavedData {
 			}
 			PacketDispatcher.sendTo(packet, (EntityPlayerMP) player);
 		}
-		Log.info("Sent markers data #%d to player %s", atlasID, player.getCommandSenderName());
 		playersSentTo.add(player);
 	}
-	
+
 	/** To be overridden in GlobalMarkersData. */
 	protected MarkersPacket newMarkersPacket(int atlasID, int dimension) {
 		return new MarkersPacket(atlasID, dimension);
 	}
-	
+
 	public boolean isEmpty() {
 		return idMap.isEmpty();
 	}
-	
+
 }
